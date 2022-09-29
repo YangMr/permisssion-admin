@@ -8,23 +8,24 @@
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import HelloWorld from "@/components/HelloWorld.vue";
 
 export default {
-  name: 'HomeView',
+  name: "HomeView",
   components: {
-    HelloWorld
+    HelloWorld,
   },
   data() {
     return {
-      name: 'jack',
-      age: '123',
-      test: 'ceshi',
-      love: 'music',
-      a: 'hello',
-      b: 'word'
-    }
+      name: "jack",
+      age: "123",
+      test: "ceshi",
+      love: "music",
+      a: "hello",
+      b: "word",
+      c: "123",
+    };
   },
-  created() {}
-}
+  created() {},
+};
 </script>
