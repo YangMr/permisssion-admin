@@ -21,7 +21,8 @@ export default {
       age: '123',
       test: 'ceshi',
       love: 'music',
-      a: 'hello'
+      a: 'hello',
+      b: 'word'
     }
   },
   created() {}
