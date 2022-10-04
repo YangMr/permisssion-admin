@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul id="list">
+    <!--    <li>it互联网</li>-->
+    <!--    <li>设计创作</li>-->
+    <!--    <li>升学考验</li>-->
+    <!--    <li>职企考证</li>-->
+</ul>
+</body>
+</html>
+<script>
+    // vue 的 递归组件
+    // 递归 函数自身调用函数自身
+    // 递归组件 组件自身调用组件自身 称为递归组件
+
+    let menu = [
+        {
+            id: 1,
+            name: 'it互联网',
+            children: [
+                {
+                    id: 2,
+                    name: '编辑语言',
+                    children: [
+                        {
+                            id: 7,
+                            name: 'java'
+                        },
+                        {
+                            id: 8,
+                            name: 'c#'
+                        }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: '前端开发',
+                    children: [
+                        {
+                            id: 9,
+                            name: 'html'
+                        },
+                        {
+                            id: 10,
+                            name: 'css',
+                            children: [
+                                {
+                                    id: 15,
+                                    name: 'flot'
+                                },
+                                {
+                                    id: 15,
+                                    name: 'position'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 4,
+                    name: '后端开发'
+                }
+            ]
+        },
+        {
+            id: 2,
+            name: '设计创作',
+            children: [
+                {
+                    id: 5,
+                    name: '平面设计',
+                    children: [
+                        {
+                            id: 11,
+                            name: 'ps'
+                        },
+                        {
+                            id: 11,
+                            name: 'xr'
+                        }
+                    ]
+                },
+                {
+                    id: 6,
+                    name: 'ui设计'
+                }
+            ]
+        },
+        {
+            id: 3,
+            name: '升学考验',
+            children: []
+        },
+        {
+            id: 4,
+            name: '职企考证'
+        }
+    ]
+
+    // const list = document.getElementById("list")
+
+
+    /*
+    for (let i = 0; i < data.length; i++) {
+        str += `<li>${data[i].name}</li>`
+
+        if (data[i].children && data[i].children.length > 0) {
+            str += `<ul>`
+            for (let j = 0; j < data[i].children.length; j++) {
+                str += `<li>${data[i].children[j].name}</li>`
+
+                if (data[i].children[j].children && data[i].children[j].children.length > 0) {
+                    str += `<ul>`
+
+                    for (let n = 0; n < data[i].children[j].children.length; n++) {
+                        str += `<li>${data[i].children[j].children[n].name}</li>`
+                    }
+
+                    str += `</ul>`
+                }
+            }
+            str += `</ul>`
+        }
+    }
+     */
+
+    // 遍历渲染数据
+    // 递归 数据结构进行处理
+    // 一维数组  递归  tree
+    // let str = ""
+    //
+    // function deep(data) {
+    //     for (let i = 0; i < data.length; i++) {
+    //         str += `<li>${data[i].name}`
+    //         if (data[i].children && data[i].children.length > 0) {
+    //             str += `<ul>`
+    //             deep(data[i].children)
+    //             str += `</ul></li>`
+    //         }
+    //     }
+    //     return str
+    // }
+    //
+    // list.innerHTML = deep(menu)
+
+    // 1 -- 100  递归
+    // let num = 0
+    //
+    // function step() {
+    //     num += 1
+    //     console.log(num)
+    //     if (num === 100) {  // 结束条件
+    //         return
+    //     }
+    //     step()
+    // }
+    //
+    // step()
+
+    // 死循环   必须得有一个结束的条件
+
+    // 1- 100  100 + 99 + 98 + 97
+
+    // function deep(n) {
+    //     if (n > 0) {
+    //         return n += deep(n - 1)
+    //     }
+    //     return 0
+    // }
+    //
+    // console.log(deep(-1))
+
+
+</script>
