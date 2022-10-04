@@ -1,21 +1,19 @@
 <template>
-  <div>
-    <template v-for="(item) in menu">
-      <el-submenu v-if="item.children && item.children.length > 0" :key="item.id" :index="item.id + ''">
+  <fragment>
+    <template v-for="(item,index) in menu">
+      <el-submenu v-if="item.children && item.children.length > 0" :key="index" :index="item.path">
         <template slot="title">
-          <i class="el-icon-location"></i>
-          <span>{{ item.name }}</span>
+          <i :class="item.icon"></i>
+          <span>{{ item.label }}</span>
         </template>
-        <menu-item :menu="item.children"></menu-item>
+        <MenuItem :menu="item.children"></MenuItem>
       </el-submenu>
-      <el-menu-item v-if="!item.children" :key="item.id" :index=" item.id + ''">
-        <i class="el-icon-menu"></i>
-        <span slot="title">{{ item.name }}</span>
+      <el-menu-item v-if="item.children && item.children.length <= 0" :key="index" :index="item.path">
+        <i :class="item.icon"></i>
+        <span slot="title">{{ item.label }}</span>
       </el-menu-item>
-
     </template>
-
-  </div>
+  </fragment>
 </template>
 
 <script>
