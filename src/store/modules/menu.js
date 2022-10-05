@@ -20,14 +20,14 @@ export default {
             id: 33,
             isHome: 0,
             label: '机构管理',
-            name: 'departmentList',
+            name: 'department',
             orderNum: 2,
             parentId: 17,
-            path: '/departmentList',
+            path: '/department',
             remark: '机构管理',
             type: '1',
             updateTime: 1586337139000,
-            url: '/system/Department/DepartmentList'
+            url: '/system/department/department'
           },
           {
             children: [],

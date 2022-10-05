@@ -24,7 +24,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.container {
+  height: 100%;
+}
+
 .main-tab {
   display: flex;
+  height: 41px;
 }
 </style>

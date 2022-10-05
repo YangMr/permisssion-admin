@@ -1,8 +1,8 @@
 <template>
   <el-menu
     :collapse="isCollapse"
+    :default-active="$route.path"
     class="el-menu-vertical-demo"
-    default-active="2"
     router
     unique-opened
   >
@@ -27,6 +27,20 @@ export default {
       'isCollapse',
       'menuList'
     ])
+  },
+  watch: {
+    $route: {
+      handler(menu) {
+        const obj = {
+          title: menu.meta.title,
+          name: menu.name,
+          path: menu.path
+        }
+        this.$store.commit('Tags/addTags', obj)
+      },
+      immediate: true,
+      deep: true
+    }
   }
 }
 </script>
