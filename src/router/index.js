@@ -91,4 +91,13 @@ const router = new VueRouter({
   routes
 })
 
+// router.addRoute('layout', {
+//   path: '/department',
+//   name: 'department',
+//   component: () => import('../views/system/department/department'),
+//   meta: {
+//     title: '机构管理'
+//   }
+// })
+
 export default router

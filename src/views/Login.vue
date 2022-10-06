@@ -16,7 +16,7 @@
             <el-input v-model="loginForm.code" placeholder="请输入验证码"></el-input>
           </el-col>
           <el-col :span="8">
-            <el-input placeholder="请输入验证码"></el-input>
+            <img :src="this.captureUrl" alt="图片验证码" class="capture" @click="getCapture">
           </el-col>
         </el-row>
       </el-form-item>
@@ -35,11 +35,18 @@
 </template>
 
 <script>
+import loginApi from '../api/login'
+
 export default {
   name: 'Login',
   data() {
     return {
-      loginForm: {},
+      captureUrl: '',
+      loginForm: {
+        username: '',
+        password: '',
+        code: ''
+      },
       rules: {
         username: [
           {
@@ -65,16 +72,43 @@ export default {
       }
     }
   },
+  created() {
+    this.getCapture()
+  },
   methods: {
     handleSubmit() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          alert('表单校验通过')
+          this.handleLogin()
         }
       })
     },
     handleReset() {
       this.$refs.loginForm.resetFields()
+    },
+    async handleLogin() {
+      try {
+        await this.$store.dispatch('User/handleLogin', this.loginForm)
+        this.$router.push('/')
+      } catch (e) {
+        this.$message.error(e.message)
+        console.log(e)
+      }
+    },
+    async getCapture() {
+      try {
+        const response = await loginApi.getCapture()
+        // 获取图片的数据流
+        const arrayBuffer = response
+
+        // 定义base64
+        const imageData = 'data:image/png;base64,' + btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ''))
+        // 将base64图片赋值给 保存验证码的变量
+        this.captureUrl = imageData
+      } catch (e) {
+        this.$message.error(e.message)
+        console.log(e)
+      }
     }
   }
 }
@@ -104,6 +138,11 @@ export default {
 
     .btn {
       width: 100%;
+    }
+
+    .capture {
+      height: 36px;
+      width: 100px;
     }
   }
 }
