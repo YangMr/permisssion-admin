@@ -19,8 +19,13 @@ router.beforeEach(async (to, from, next) => {
         next()
       } else {
         try {
-          await store.dispatch('Menu/getMenuList')
-          next()
+          const response = await store.dispatch('Menu/getMenuList', router)
+          if (response) {
+            next({ path: to.path })
+          } else {
+            removeToken()
+            next('/login')
+          }
         } catch (e) {
           console.log(e.message)
           removeToken()

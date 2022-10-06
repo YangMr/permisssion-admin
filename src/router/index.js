@@ -17,6 +17,10 @@ const routes = [
     component: Login
   },
   {
+    path: '/404',
+    component: () => import('../views/404')
+  },
+  {
     path: '/',
     name: 'layout',
     redirect: '/home',
@@ -26,64 +30,68 @@ const routes = [
         path: 'home',
         name: 'home',
         component: () => import('../views/Home')
-      },
-      {
-        path: '/department',
-        name: 'department',
-        component: () => import('../views/system/department/department'),
-        meta: {
-          title: '机构管理'
-        }
-      },
-      {
-        path: '/userList',
-        name: 'userList',
-        component: () => import('../views/system/User/UserList'),
-        meta: {
-          title: '用户管理'
-        }
-      },
-      {
-        path: '/roleList',
-        name: 'roleList',
-        component: () => import('../views/system/Role/RoleList'),
-        meta: {
-          title: '角色管理'
-        }
-      },
-      {
-        path: '/menuList',
-        name: 'menuList',
-        component: () => import('../views/system/Menu/MenuList'),
-        meta: {
-          title: '权限管理'
-        }
-      },
-      {
-        path: '/goodCategory',
-        name: 'goodCategory',
-        component: () => import('../views/goods/goodsCategory/goodsCategoryList'),
-        meta: {
-          title: '分类管理'
-        }
-      },
-      {
-        path: '/systemCode',
-        name: 'systemCode',
-        component: () => import('../views/system/config/code'),
-        meta: {
-          title: '日志管理'
-        }
-      },
-      {
-        path: '/document',
-        name: 'document',
-        component: () => import('../views/system/config/systemDocument'),
-        meta: {
-          title: '接口文档'
-        }
       }
+      // {
+      //   path: '/department',
+      //   name: 'department',
+      //   component: () => import('../views/system/department/department'),
+      //   meta: {
+      //     title: '机构管理'
+      //   }
+      // },
+      // {
+      //   path: '/userList',
+      //   name: 'userList',
+      //   component: () => import('../views/system/User/UserList'),
+      //   meta: {
+      //     title: '用户管理'
+      //   }
+      // },
+      // {
+      //   path: '/roleList',
+      //   name: 'roleList',
+      //   component: () => import('../views/system/Role/RoleList'),
+      //   meta: {
+      //     title: '角色管理'
+      //   }
+      // },
+      // {
+      //   path: '/menuList',
+      //   name: 'menuList',
+      //   component: () => import('../views/system/Menu/MenuList'),
+      //   meta: {
+      //     title: '权限管理'
+      //   }
+      // },
+      // {
+      //   path: '/goodCategory',
+      //   name: 'goodCategory',
+      //   component: () => import('../views/goods/goodsCategory/goodsCategoryList'),
+      //   meta: {
+      //     title: '分类管理'
+      //   }
+      // },
+      // {
+      //   path: '/systemCode',
+      //   name: 'systemCode',
+      //   component: () => import('../views/system/config/code'),
+      //   meta: {
+      //     title: '日志管理'
+      //   }
+      // },
+      // {
+      //   path: '/document',
+      //   name: 'document',
+      //   component: () => import('../views/system/config/systemDocument'),
+      //   meta: {
+      //     title: '接口文档'
+      //   }
+      // }
     ]
+  },
+  {
+    path: '*',
+    redirect: '/404'
   }
 ]
 

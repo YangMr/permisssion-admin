@@ -203,15 +203,48 @@ export default {
     },
     setAuthList(state, authList) {
       state.authList = authList
+    },
+    // 动态添加路由
+    dynamicRouter(state, router) {
+      // 获取静态路由/原来的路由
+      // const routes = router.options.routes
+      // console.log('old', routes)
+      // 获取后台返回的路由表
+      const routerList = state.routerList
+      console.log('routerList', routerList)
+      routerList.forEach(item => {
+        if (item.path === '/document') {
+          item.name = item.path.replace('/', '')
+        }
+        const obj = {
+          path: item.path,
+          name: item.name,
+          component: resolve => require([`@/views${item.url}.vue`], resolve),
+          meta: {
+            title: item.label
+          }
+        }
+        // routes[1].children.push(obj)
+        router.addRoute('layout', obj)
+      })
+      // router.addRoute({
+      //   path: '*',
+      //   redirect: '/404'
+      // })
+      // router.addRoutes()
+      // console.log('zg', router.getRoutes())
+      // console.log('zg1', router.options.routes)
     }
   },
   actions: {
-    async getMenuList({ commit }) {
+    async getMenuList({ commit }, router) {
       try {
         const response = await loginApi.getPermissionList()
         commit('setMenuList', response.data.menuList)
         commit('setRouterList', response.data.routerList)
         commit('setAuthList', response.data.authList)
+        commit('dynamicRouter', router)
+        return response
       } catch (e) {
         console.log(e.message)
       }
