@@ -19,8 +19,17 @@ router.beforeEach(async (to, from, next) => {
         next()
       } else {
         try {
-          const response = await store.dispatch('Menu/getMenuList', router)
+          const { response, routerArray } = await store.dispatch('Menu/getMenuList')
+
           if (response) {
+            routerArray.forEach(item => {
+              router.addRoute('layout', item)
+            })
+            router.addRoute({
+              path: '*',
+              redirect: '/404'
+            })
+            console.log('zg', router.getRoutes())
             next({ path: to.path })
           } else {
             removeToken()

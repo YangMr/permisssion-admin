@@ -42,8 +42,20 @@ const getPermissionList = () => {
   })
 }
 
+/**
+ * 退出登录接口
+ * @returns {AxiosPromise}
+ */
+const logout = () => {
+  return request({
+    url: '/sysUser/loginOut',
+    method: 'POST'
+  })
+}
+
 export default {
   login,
   getCapture,
-  getPermissionList
+  getPermissionList,
+  logout
 }

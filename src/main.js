@@ -18,6 +18,8 @@ Vue.use(Fragment.Plugin)
 
 Vue.config.productionTip = false
 
+console.log('old', router.getRoutes())
+
 new Vue({
   router,
   store,

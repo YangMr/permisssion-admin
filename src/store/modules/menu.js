@@ -203,15 +203,25 @@ export default {
     },
     setAuthList(state, authList) {
       state.authList = authList
+    }
+  },
+  actions: {
+    async getMenuList({ commit, dispatch }) {
+      try {
+        const response = await loginApi.getPermissionList()
+        commit('setMenuList', response.data.menuList)
+        commit('setRouterList', response.data.routerList)
+        commit('setAuthList', response.data.authList)
+        const routerArray = await dispatch('dynamicRouter')
+        return { response, routerArray }
+      } catch (e) {
+        console.log(e.message)
+      }
     },
     // 动态添加路由
-    dynamicRouter(state, router) {
-      // 获取静态路由/原来的路由
-      // const routes = router.options.routes
-      // console.log('old', routes)
-      // 获取后台返回的路由表
+    dynamicRouter({ state }) {
       const routerList = state.routerList
-      console.log('routerList', routerList)
+      const routerArray = []
       routerList.forEach(item => {
         if (item.path === '/document') {
           item.name = item.path.replace('/', '')
@@ -224,30 +234,9 @@ export default {
             title: item.label
           }
         }
-        // routes[1].children.push(obj)
-        router.addRoute('layout', obj)
+        routerArray.push(obj)
       })
-      // router.addRoute({
-      //   path: '*',
-      //   redirect: '/404'
-      // })
-      // router.addRoutes()
-      // console.log('zg', router.getRoutes())
-      // console.log('zg1', router.options.routes)
-    }
-  },
-  actions: {
-    async getMenuList({ commit }, router) {
-      try {
-        const response = await loginApi.getPermissionList()
-        commit('setMenuList', response.data.menuList)
-        commit('setRouterList', response.data.routerList)
-        commit('setAuthList', response.data.authList)
-        commit('dynamicRouter', router)
-        return response
-      } catch (e) {
-        console.log(e.message)
-      }
+      return routerArray
     }
   }
 }
