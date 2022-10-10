@@ -15,6 +15,18 @@ const getDepartmentList = () => {
   })
 }
 
+/**
+ * 获取上级机构列表
+ * @returns {AxiosPromise}
+ */
+const getParentDepartment = () => {
+  return request({
+    url: '/department/parent',
+    method: 'GET'
+  })
+}
+
 export default {
-  getDepartmentList
+  getDepartmentList,
+  getParentDepartment
 }
