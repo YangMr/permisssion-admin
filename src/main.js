@@ -15,6 +15,11 @@ import Fragment from 'vue-fragment'
 // 引入iconfont字体图标样式
 import './assets/icon/iconfont.css'
 
+// 引入工具类
+import util from './utils/util'
+
+Vue.prototype.$util = util
+
 Vue.use(ElementUI)
 
 Vue.use(Fragment.Plugin)

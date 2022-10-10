@@ -27,8 +27,8 @@
       <el-table-column label="序号" prop="orderNum"></el-table-column>
       <el-table-column label="操作">
         <template v-slot="scope">
-          <el-button size="mini" type="primary" @click="handleEdit(scope.id)">编辑</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.id)">删除</el-button>
+          <el-button size="mini" type="primary" @click="handleEditOpenDialog(scope.row)">编辑</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,8 +80,8 @@
               <i class="el-icon-document" style="margin-right: 3px"></i>
             </span>
             <span v-else @click="handleOpenBtn(data)">
-              <i v-if="data.open" class="iconfont icon-jia"></i>
-              <i v-else class="iconfont icon-jian"></i>
+              <i style="margin-right: 3px" v-if="data.open" class="iconfont icon-jia"></i>
+              <i style="margin-right: 3px" v-else class="iconfont icon-jian"></i>
             </span>
             <span>{{ node.label }}</span>
           </div>
@@ -94,6 +94,7 @@
 <script>
 import departmentApi from '../../../api/department'
 import DiaLog from '../../../components/DiaLog'
+import _ from 'lodash'
 
 export default {
   name: 'DepartmentList',
@@ -105,7 +106,8 @@ export default {
         label: 'name'
       },
       departmentList: [],
-      departmentForm: {
+      departmentForm: {},
+      departmentDialogForm: {
         parentName: '',
         name: '',
         deptCode: '',
@@ -114,9 +116,9 @@ export default {
         deptAddress: '',
         orderNum: '',
         id: '',
-        pid: ''
+        pid: '',
+        editType: '0'
       },
-      departmentDialogForm: {},
       dialogRules: {
         parentName: [
           { required: true, message: '请选择上级部门', trigger: 'blur' }
@@ -160,8 +162,29 @@ export default {
     handleEdit() {
 
     },
-    handleDelete() {
+    handleEditOpenDialog(row) {
+      const data = _.cloneDeep(row)
+      this.departmentDialogForm = data
+      this.departmentDialogForm.editType = '1'
+      console.log(this.departmentDialogForm)
+      this.addDialog.title = '编辑机构'
 
+      this.addDialog.visible = true
+    },
+    // 删除机构
+    async handleDelete(id) {
+      try {
+        const res = await this.$util.confirm('确定删除该数据吗?')
+        if (res) {
+          const response = await departmentApi.deleteDepartment(id)
+          if (response.code === 200) {
+            this.$message.success(response.msg)
+            this.getDepartmentList()
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
     },
     handleReset() {
       this.$refs.queryForm.resetFields()
@@ -170,9 +193,28 @@ export default {
       this.addDialog.visible = false
     },
     handleConfirm() {
-      this.$refs.departmentDialogForm.validate(valid => {
+      this.$refs.departmentDialogForm.validate(async valid => {
         if (valid) {
           console.log('departmentForm=>', this.departmentDialogForm)
+          let response
+          if (this.departmentDialogForm.editType === '0') {
+            try {
+              response = await departmentApi.addDepartment(this.departmentDialogForm)
+            } catch (e) {
+              console.log()
+            }
+          } else {
+            try {
+              response = await departmentApi.editDepartment(this.departmentDialogForm)
+            } catch (e) {
+              console.log(e.message)
+            }
+          }
+
+          if (response.code === 200) {
+            this.$message.success(response.msg)
+            this.getDepartmentList()
+          }
         }
       })
 
@@ -230,7 +272,80 @@ export default {
 
 ::v-deep .el-tree {
 
+  .el-tree-node {
+    position: relative;
+    padding-left: 10px;
+  }
+
+  .el-tree-node__children {
+    padding-left: 20px;
+  }
+
+  .el-tree-node :last-child:before {
+    height: 40px;
+  }
+
+  .el-tree > .el-tree-node:before {
+    border-left: none;
+  }
+
+  .el-tree > .el-tree-node:after {
+    border-top: none;
+  }
+
+  .el-tree-node:before,
+  .el-tree-node:after {
+    content: "";
+    left: -4px;
+    position: absolute;
+    right: auto;
+    border-width: 1px;
+  }
+
+  .tree :first-child .el-tree-node:before {
+    border-left: none;
+  }
+
+  // 竖线
+  .el-tree-node:before {
+    border-left: 1px dotted #d9d9d9;
+    bottom: 0px;
+    height: 100%;
+    top: -25px;
+    width: 1px;
+  }
+
+  //横线
+  .el-tree-node:after {
+    border-top: 1px dotted #d9d9d9;
+    height: 20px;
+    top: 14px;
+    width: 24px;
+  }
+
+  .el-tree-node__expand-icon.is-leaf {
+    width: 8px;
+  }
+
   .el-tree-node__content > .el-tree-node__expand-icon {
+    display: none;
+  }
+
+  //每一行的高度
+  .el-tree-node__content {
+    line-height: 30px;
+    height: 30px;
+    padding-left: 10px !important;
+  }
+}
+
+//去掉最上级的before  after 即是去电最上层的连接线
+::v-deep .el-tree > div {
+  &::before {
+    display: none;
+  }
+
+  &::after {
     display: none;
   }
 }

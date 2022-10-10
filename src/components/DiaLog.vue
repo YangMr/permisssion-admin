@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog :before-close="beforeClose" :title="title" :visible.sync="visible" :width="width + 'px'">
-      <div :style="{ height: height + 'px' }" class="container">
+      <div class="content" :style="{ height: height + 'px'}">
         <slot name="content"></slot>
       </div>
       <span slot="footer">
@@ -71,6 +71,11 @@ export default {
 
     .el-dialog__body {
       padding: 10px;
+    }
+
+    .content {
+      min-height: 200px;
+      overflow: auto;
     }
 
     .el-dialog__footer {
