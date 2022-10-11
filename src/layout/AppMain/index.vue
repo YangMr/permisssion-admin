@@ -32,4 +32,8 @@ export default {
   display: flex;
   height: 41px;
 }
+
+.main-view {
+  height: 100%;
+}
 </style>

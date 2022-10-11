@@ -247,10 +247,7 @@ export default {
     },
     // 点击el-tree自定义图标会触发的方法
     handleOpenBtn(data) {
-      console.log(data)
       data.open = !data.open
-
-      console.log('--', this.$refs.parentTree)
       this.$refs.parentTree.store.nodesMap[data.id].expanded = !data.open
     },
     // 关闭选择机构弹窗
