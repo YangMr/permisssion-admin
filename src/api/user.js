@@ -12,10 +12,11 @@ import request from '../utils/request'
  * @param size  条数
  * @returns {AxiosPromise}
  */
-const getUserList = (id, page, size) => {
+const getUserList = (data) => {
   return request({
-    url: `/user/list/${id}/${page}/${size}`,
-    method: 'GET'
+    url: '/user/list',
+    method: 'GET',
+    data
   })
 }
 
@@ -31,7 +32,35 @@ const deleteUser = (id) => {
   })
 }
 
+/**
+ * 新增用户接口
+ * @param data
+ * @returns {AxiosPromise}
+ */
+const addUser = (data) => {
+  return request({
+    url: '/user',
+    method: 'POST',
+    data
+  })
+}
+
+/**
+ * 编辑用户接口
+ * @param data
+ * @returns {AxiosPromise}
+ */
+const editUser = (data) => {
+  return request({
+    url: '/user',
+    method: 'PUT',
+    data
+  })
+}
+
 export default {
   getUserList,
-  deleteUser
+  deleteUser,
+  addUser,
+  editUser
 }

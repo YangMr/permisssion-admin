@@ -18,14 +18,15 @@
       </el-tree>
     </el-aside>
     <el-main>
-      <el-form size="small" label-width="80px" :inline="true" :model="queryForm" class="demo-form-inline">
-        <el-form-item label="用户名">
-          <el-input v-model="queryForm.user"></el-input>
+      <el-form size="small" ref="queryForm" label-width="80px" :inline="true" :model="queryForm"
+               class="demo-form-inline">
+        <el-form-item label="用户名" prop="loginName">
+          <el-input v-model="queryForm.loginName"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button icon="el-icon-search">查询</el-button>
-          <el-button icon="el-icon-delete" style="color : #f60">重置</el-button>
-          <el-button icon="el-icon-plus" type="primary">新增</el-button>
+          <el-button icon="el-icon-search" @click="handleQuery">查询</el-button>
+          <el-button icon="el-icon-delete" style="color : #f60" @click="handleReset">重置</el-button>
+          <el-button icon="el-icon-plus" type="primary" @click="handleOpen">新增</el-button>
         </el-form-item>
       </el-form>
 
@@ -41,7 +42,7 @@
         <el-table-column prop="email" label="邮箱"></el-table-column>
         <el-table-column label="操作" width="290">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" icon="el-icon-edit">编辑</el-button>
+            <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleEditOpen(scope.row)">编辑</el-button>
             <el-button size="mini" type="primary" icon="el-icon-setting">分配角色</el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(scope.row.id)">删除
             </el-button>
@@ -53,11 +54,72 @@
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page.sync="userParams.page"
-        :page-size="userParams.size"
+        :current-page.sync="userParams.currentPage"
+        :page-size="userParams.pageSize"
         layout="total,prev, pager, next, jumper"
         :total="total">
       </el-pagination>
+
+      <Dialog :title="addDialogParams.title" :width="addDialogParams.width" :visible="addDialogParams.visible"
+              :height="addDialogParams.height" @close="handleClose" @confirm="handleConfirm">
+        <div slot="content">
+          <el-form ref="dialogForm" size="small" :rules="dialogRules" label-width="80px" :inline="true"
+                   :model="addDialogForm"
+                   class="demo-form-inline">
+            <el-form-item label="所属部门" prop="deptName">
+              <el-input @click.native="handleOpenTree" v-model="addDialogForm.deptName"></el-input>
+            </el-form-item>
+            <el-form-item label="姓名" prop="username">
+              <el-input v-model="addDialogForm.username"></el-input>
+            </el-form-item>
+            <el-form-item label="电话" prop="mobile">
+              <el-input v-model="addDialogForm.mobile"></el-input>
+            </el-form-item>
+            <el-form-item label="昵称" prop="nickName">
+              <el-input v-model="addDialogForm.nickName"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="addDialogForm.email"></el-input>
+            </el-form-item>
+            <el-form-item label="登录名" prop="loginName">
+              <el-input v-model="addDialogForm.loginName"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+              <el-input v-model="addDialogForm.password"></el-input>
+            </el-form-item>
+            <el-form-item label="性别" prop="sex">
+              <el-radio-group v-model="addDialogForm.sex">
+                <el-radio label="男"></el-radio>
+                <el-radio label="女"></el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-form>
+        </div>
+      </Dialog>
+
+      <Dialog :title="treeDialogParams.title" :width="treeDialogParams.width" :visible="treeDialogParams.visible"
+              :height="treeDialogParams.height" @close="handleTreeClose" @confirm="handleTreeConfirm"
+
+      >
+
+        <div slot="content">
+          <el-tree @node-click="handleParentClick" default-expand-all node-key="id" ref="departmentTree"
+                   :expand-on-click-node="false"
+                   :data="parentDepartmentList" :props="defaultProps">
+            <div slot-scope="{node,data}">
+              <span v-if="data.children.length === 0">
+                <i class="el-icon-document"></i>
+              </span>
+              <span v-else @click="handleOpenParent(data)">
+                <i v-if="data.open" class="iconfont icon-jia"></i>
+                <i v-else class="iconfont icon-jian"></i>
+              </span>
+              <span>{{ node.label }}</span>
+            </div>
+          </el-tree>
+        </div>
+
+      </Dialog>
     </el-main>
   </el-container>
 </template>
@@ -65,9 +127,13 @@
 <script>
 import departmentApi from '../../../api/department'
 import userApi from '../../../api/user'
+import Dialog from '../../../components/DiaLog'
 
 export default {
   name: 'UserList',
+  components: {
+    Dialog
+  },
   data() {
     return {
       // 设置el-tree默认要渲染的字端
@@ -81,14 +147,54 @@ export default {
       userList: [],
       // 用户列表参数
       userParams: {
-        id: '',
-        page: 1,
-        size: 2
-      },
-      // 保存用户列表的总条数
+        deptId: '',
+        currentPage: 1,
+        pageSize: 2
+      }, // 保存用户列表的总条数
       total: 0,
       // 用来保存查询表单输入的数据
-      queryForm: {}
+      queryForm: {
+        loginName: ''
+      },
+      // 新增用户弹窗参数
+      addDialogParams: {
+        title: '用户新增',
+        visible: false,
+        width: 610,
+        height: 230
+      },
+      // tree弹窗仓库
+      treeDialogParams: {
+        title: '选择上级部门',
+        visible: false,
+        width: 300,
+        height: 450
+      },
+      // 保存弹窗表单输入的数据
+      addDialogForm: {
+        deptId: 0,
+        deptName: '',
+        email: '',
+        id: '',
+        loginName: '',
+        mobile: '',
+        nickName: '',
+        password: '',
+        sex: '',
+        type: '0', // 0 新增 1 编辑
+        username: ''
+      },
+      // 校验弹窗表单
+      dialogRules: {
+        deptName: [{ required: true, message: '请选择上级部门', trigger: 'change' }],
+        username: [{ required: true, message: '请填写姓名', trigger: 'change' }],
+        mobile: [{ required: true, message: '请填写电话', trigger: 'change' }],
+        loginName: [{ required: true, message: '请填写登录名', trigger: 'change' }],
+        password: [{ required: true, message: '请填写登录密码', trigger: 'change' }],
+        sex: [{ required: true, message: '请选择性别', trigger: 'change' }]
+      },
+      // 保存上级部门列表
+      parentDepartmentList: []
     }
   },
   async created() {
@@ -101,14 +207,15 @@ export default {
       const { code, data } = await departmentApi.getDepartmentList()
       if (code === 200) {
         this.departmentList = data
-        this.userParams.id = data[0].id
+        this.userParams.deptId = data[0].id
       }
     },
     // 获取用户列表方法
     async getUserList() {
       try {
-        const { id, page, size } = this.userParams
-        const { code, data } = await userApi.getUserList(id, page, size)
+        const obj = { ...this.userParams, ...this.queryForm }
+        console.log(obj)
+        const { code, data } = await userApi.getUserList(obj)
         console.log('response', data)
         if (code === 200) {
           this.userList = data.records
@@ -120,7 +227,7 @@ export default {
     },
     // 点击el-tree阶段的时候会触发的方法
     handleNodeClick(data) {
-      this.userParams.id = data.id
+      this.userParams.deptId = data.id
       this.getUserList()
     },
     // 点击加减号图标会触发的方法
@@ -130,12 +237,12 @@ export default {
     },
     // 条数发生变化会触发的方法
     handleSizeChange(size) {
-      this.userParams.size = size
+      this.userParams.pageSize = size
       this.getUserList()
     },
     // 页码发生变化会触发的方法
     handleCurrentChange(page) {
-      this.userParams.page = page
+      this.userParams.currentPage = page
       this.getUserList()
     },
     // 删除用户方法
@@ -152,6 +259,102 @@ export default {
       } catch (e) {
         console.log(e.message)
       }
+    },
+    // 查询用户方法
+    handleQuery() {
+      this.currentPage = 1
+      this.getUserList()
+    },
+    // 查询表单重置方法
+    handleReset() {
+      this.$refs.queryForm.resetFields()
+      this.getUserList()
+    },
+    // 打开新增用户弹窗方法
+    handleOpen() {
+      this.addDialogParams.title = '新增用户'
+      this.addDialogParams.visible = true
+    },
+    // 打开编辑用户弹窗方法
+    handleEditOpen(row) {
+      this.addDialogParams.title = '编辑用户'
+      this.addDialogParams.visible = true
+      this.addDialogForm = row
+    },
+    // 关闭弹窗
+    handleClose() {
+      this.addDialogParams.visible = false
+    },
+    // 点击弹窗确定按钮触发的方法
+    handleConfirm() {
+      this.$refs.dialogForm.validate(valid => {
+        if (valid) {
+          console.log(this.addDialogForm)
+          if (!this.addDialogForm.id) {
+            this.handleAdd()
+          } else {
+            this.handleEdit()
+          }
+
+          this.addDialogParams.visible = false
+        }
+      })
+    },
+    // 新增用户方法
+    async handleAdd() {
+      try {
+        const { code } = await userApi.addUser(this.addDialogForm)
+        if (code === 200) {
+          this.addDialogParams.visible = false
+          await this.getUserList()
+          this.$message.success('新增成功')
+        }
+      } catch (e) {
+        console.log(e.message)
+      }
+    },
+    // 编辑用户方法
+    async handleEdit() {
+      try {
+        const { code } = await userApi.editUser(this.addDialogForm)
+        if (code === 200) {
+          this.addDialogParams.visible = false
+          await this.getUserList()
+          this.$message.success('编辑成功')
+        }
+      } catch (e) {
+        console.log(e.message)
+      }
+    },
+    // 打开tree弹窗
+    async handleOpenTree() {
+      try {
+        const { data, code } = await departmentApi.getParentDepartment()
+        if (code === 200) {
+          this.parentDepartmentList = data
+        }
+        this.treeDialogParams.visible = true
+      } catch (e) {
+        console.log(e.message)
+      }
+    },
+    // 控制展开收起 / 切换展开收起图标
+    handleOpenParent(data) {
+      data.open = !data.open
+      this.$refs.departmentTree.store.nodesMap[data.id].expanded = !data.open
+    },
+    handleParentClick(data) {
+      console.log(data.id)
+      console.log(data)
+      this.addDialogForm.deptId = data.id
+      this.addDialogForm.deptName = data.name
+      // this.treeDialogParams.visible = false
+    },
+    handleTreeClose() {
+      this.treeDialogParams.visible = false
+    },
+    handleTreeConfirm() {
+      this.treeDialogParams.visible = false
     }
   }
 }
@@ -173,7 +376,7 @@ export default {
   height: 100%;
 }
 
-.el-aside ::v-deep .el-tree {
+.el-aside ::v-deep .el-tree, .el-main ::v-deep .el-tree {
   // 将每一行的设置为相对定位 方便后面before after 使用绝对定位来固定位置
   .el-tree-node {
     position: relative;
