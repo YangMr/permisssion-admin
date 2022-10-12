@@ -24,6 +24,7 @@ module.exports = {
     'vue/no-mutating-props': 'off',
     'keyword-spacing': 'off',
     'space-before-blocks': 'off',
-    'padded-blocks': 'off'
+    'padded-blocks': 'off',
+    'vue/no-unused-vars': 'off'
   }
 }

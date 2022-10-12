@@ -58,9 +58,50 @@ const editUser = (data) => {
   })
 }
 
+/**
+ * 获取用户的userId
+ * @param id
+ * @returns {AxiosPromise}
+ */
+const getUserId = (id) => {
+  return request({
+    url: `/user/getRoleIdByUserId/${id}`,
+    method: 'GET'
+  })
+}
+
+/**
+ * 获取用户的角色列表
+ * @param data
+ * @returns {AxiosPromise}
+ */
+const getRoleList = (data) => {
+  return request({
+    url: '/user/getRolistForAssign',
+    method: 'GET',
+    data
+  })
+}
+
+/**
+ * 分配角色
+ * @param data
+ * @returns {AxiosPromise}
+ */
+const assignRole = (data) => {
+  return request({
+    url: '/user/assingRole',
+    method: 'POST',
+    data
+  })
+}
+
 export default {
   getUserList,
   deleteUser,
   addUser,
-  editUser
+  editUser,
+  getUserId,
+  getRoleList,
+  assignRole
 }

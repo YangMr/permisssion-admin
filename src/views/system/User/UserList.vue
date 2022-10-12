@@ -43,7 +43,8 @@
         <el-table-column label="操作" width="290">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleEditOpen(scope.row)">编辑</el-button>
-            <el-button size="mini" type="primary" icon="el-icon-setting">分配角色</el-button>
+            <el-button size="mini" type="primary" icon="el-icon-setting" @click="handleOpenRole(scope.row)">分配角色
+            </el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(scope.row.id)">删除
             </el-button>
           </template>
@@ -60,6 +61,7 @@
         :total="total">
       </el-pagination>
 
+      <!-- 新增/编辑用户弹窗-->
       <Dialog :title="addDialogParams.title" :width="addDialogParams.width" :visible="addDialogParams.visible"
               :height="addDialogParams.height" @close="handleClose" @confirm="handleConfirm">
         <div slot="content">
@@ -97,6 +99,7 @@
         </div>
       </Dialog>
 
+      <!--选择机构列表弹窗-->
       <Dialog :title="treeDialogParams.title" :width="treeDialogParams.width" :visible="treeDialogParams.visible"
               :height="treeDialogParams.height" @close="handleTreeClose" @confirm="handleTreeConfirm"
 
@@ -120,6 +123,29 @@
         </div>
 
       </Dialog>
+
+      <!--分配角色弹窗-->
+      <Dialog :title="roleDialogParams.title" :width="roleDialogParams.width" :visible="roleDialogParams.visible"
+              :height="roleDialogParams.height" @close="handleRoleClose" @confirm="handleRoleConfirm">
+
+        <div slot="content">
+
+          <el-table
+            :data="roleList"
+            height="300"
+            border
+            style="width: 100%">
+            <el-table-column label="选择" width="80px">
+              <template v-slot="scope">
+                <el-radio @change="getCheckRole(scope.row)" v-model="radio" :label="scope.row.id">{{""}}</el-radio>
+              </template>
+            </el-table-column>
+            <el-table-column prop="name" label="角色名称"></el-table-column>
+            <el-table-column prop="remark" label="角色备注"></el-table-column>
+          </el-table>
+        </div>
+
+      </Dialog>
     </el-main>
   </el-container>
 </template>
@@ -136,6 +162,9 @@ export default {
   },
   data() {
     return {
+      radio: '',
+      userId: '',
+      roleId: '',
       // 设置el-tree默认要渲染的字端
       defaultProps: {
         children: 'children',
@@ -170,6 +199,13 @@ export default {
         width: 300,
         height: 450
       },
+      // 分配角色弹窗参数
+      roleDialogParams: {
+        title: '',
+        visible: false,
+        width: 800,
+        height: 400
+      },
       // 保存弹窗表单输入的数据
       addDialogForm: {
         deptId: 0,
@@ -194,7 +230,17 @@ export default {
         sex: [{ required: true, message: '请选择性别', trigger: 'change' }]
       },
       // 保存上级部门列表
-      parentDepartmentList: []
+      parentDepartmentList: [],
+      // 分配角色弹窗的分页参数
+      rolePaginationParams: {
+        total: 0,
+        currentPage: 1,
+        pageSize: 10
+      },
+      // 保存的是分配角色弹窗列表的数据
+      roleList: [],
+      // 分配角色所需要的参数
+      assignRoleData: {}
     }
   },
   async created() {
@@ -355,6 +401,68 @@ export default {
     },
     handleTreeConfirm() {
       this.treeDialogParams.visible = false
+    },
+    // 打开分配角色弹窗
+    async handleOpenRole(row) {
+      try {
+        await this.getUserId(row.id)
+        await this.getRoleList()
+      } catch (e) {
+        console.log(e.message)
+      }
+      this.roleDialogParams.title = `为【${row.loginName}】分配角色`
+      this.roleDialogParams.visible = true
+    },
+    // 调用获取用户userId的接口
+    async getUserId(id) {
+      try {
+        const { code, data } = await userApi.getUserId(id)
+        if (code === 200) {
+          this.userId = data.userId
+          this.roleId = data.roleId
+        }
+      } catch (e) {
+        console.log(e.message)
+      }
+    },
+    // 调用获取用角色列表的接口
+    async getRoleList() {
+      try {
+        this.rolePaginationParams.userId = this.userId
+        const { code, data } = await userApi.getRoleList(this.rolePaginationParams)
+        if (code === 200) {
+          this.roleList = data.records
+          this.rolePaginationParams.total = data.total
+          this.radio = this.roleId
+        }
+      } catch (e) {
+        console.log(e.message)
+      }
+    },
+    // 关闭弹窗之前会触发的方法
+    handleRoleClose() {
+      this.roleDialogParams.visible = false
+    },
+    // 点击分配角色弹窗确定按钮触发的方法
+    async handleRoleConfirm() {
+      try {
+        const response = await userApi.assignRole(this.assignRoleData)
+        console.log(response)
+        if(response.code === 200){
+          this.roleDialogParams.visible = false
+          this.$message.success(response.msg)
+          this.getUserList()
+        }
+      }catch (e) {
+        console.log(e.message)
+      }
+    },
+    // 点击单选按钮触发的方法
+    getCheckRole(row){
+      this.assignRoleData = {
+        userId: row.id,
+        roleId: this.roleId
+      }
     }
   }
 }
